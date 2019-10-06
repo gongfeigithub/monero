@@ -121,10 +121,10 @@ t_command_server::t_command_server(
 	   , "Print the staking requirement for the height."
    );
    m_command_lookup.set_handler(
-	   "prepare_registration"
-	   , std::bind(&t_command_parser_executor::prepare_registration, &m_parser)
-	   , "prepare_registration"
-	   , "Interactive prompt to prepare the registration. The resulting registration data is saved to disk."
+	   "prepare_sn"
+	   , std::bind(&t_command_parser_executor::prepare_sn, &m_parser)
+	   , "prepare_sn"
+     , "Interactive prompt to prepare a service node registration command. The resulting registration command can be run in the command-line wallet to send the registration to the blockchain."
    );
    m_command_lookup.set_handler(
 	   "print_sn"

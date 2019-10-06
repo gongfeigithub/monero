@@ -69,10 +69,10 @@ typedef struct mdb_txn_cursors
   MDB_cursor *m_txc_txpool_blob;
 
   MDB_cursor *m_txc_hf_versions;
+  MDB_cursor *m_txc_service_node_data;
+
 
   MDB_cursor *m_txc_properties;
-
-  MDB_cursor *m_txc_service_node_data;
 } mdb_txn_cursors;
 
 #define m_cur_blocks	m_cursors->m_txc_blocks
@@ -91,8 +91,8 @@ typedef struct mdb_txn_cursors
 #define m_cur_txpool_meta	m_cursors->m_txc_txpool_meta
 #define m_cur_txpool_blob	m_cursors->m_txc_txpool_blob
 #define m_cur_hf_versions	m_cursors->m_txc_hf_versions
-#define m_cur_properties	m_cursors->m_txc_properties
 #define m_cur_service_node_data	m_cursors->m_txc_service_node_data
+#define m_cur_properties	m_cursors->m_txc_properties
 
 typedef struct mdb_rflags
 {
@@ -113,8 +113,9 @@ typedef struct mdb_rflags
   bool m_rf_txpool_meta;
   bool m_rf_txpool_blob;
   bool m_rf_hf_versions;
-  bool m_rf_properties;
   bool m_rf_service_node_data;
+
+  bool m_rf_properties;
 } mdb_rflags;
 
 typedef struct mdb_threadinfo

@@ -1,6 +1,10 @@
 // Copyright (c) 2014-2018, The Monero Project
+<<<<<<< HEAD
+//
+=======
 // Copyright (c) 2018, The BitDark Project
 // 
+>>>>>>> origin/master
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -79,8 +83,12 @@ namespace tests
     void get_blockchain_top(uint64_t& height, crypto::hash& top_id);
     bool handle_incoming_tx(const cryptonote::blobdata& tx_blob, cryptonote::tx_verification_context& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
     bool handle_incoming_txs(const std::vector<cryptonote::blobdata>& tx_blobs, std::vector<cryptonote::tx_verification_context>& tvc, bool keeped_by_block, bool relayed, bool do_not_relay);
-    bool handle_incoming_block(const cryptonote::blobdata& block_blob, const cryptonote::block *block, cryptonote::block_verification_context& bvc, bool update_miner_blocktemplate = true);
+<<<<<<< HEAD
+    bool handle_incoming_block(const cryptonote::blobdata& block_blob, cryptonote::block_verification_context& bvc, bool update_miner_blocktemplate = true);
     bool handle_uptime_proof(uint64_t timestamp, const crypto::public_key& pubkey, const crypto::signature& sig);
+=======
+    bool handle_incoming_block(const cryptonote::blobdata& block_blob, const cryptonote::block *block, cryptonote::block_verification_context& bvc, bool update_miner_blocktemplate = true);
+>>>>>>> origin/master
     void pause_mine(){}
     void resume_mine(){}
     bool on_idle(){return true;}
@@ -107,10 +115,14 @@ namespace tests
     cryptonote::difficulty_type get_block_cumulative_difficulty(uint64_t height) const { return 0; }
     bool fluffy_blocks_enabled() const { return false; }
     uint64_t prevalidate_block_hashes(uint64_t height, const std::vector<crypto::hash> &hashes) { return 0; }
+<<<<<<< HEAD
+    // TODO(mendark): Write tests
+  virtual void set_deregister_votes_relayed(const std::vector<mendark::service_node_deregister::vote>& votes) {}
+  bool add_deregister_vote(const mendark::service_node_deregister::vote& vote, cryptonote::vote_verification_context &vvc) { return false; }
+=======
     bool pad_transactions() const { return false; }
     uint32_t get_blockchain_pruning_seed() const { return 0; }
     bool prune_blockchain(uint32_t pruning_seed) const { return true; }
-    virtual void set_deregister_votes_relayed(const std::vector<mendark::service_node_deregister::vote>& votes) {}
-    bool add_deregister_vote(const mendark::service_node_deregister::vote& vote, cryptonote::vote_verification_context &vvc) { return false; }
+>>>>>>> origin/master
   };
 }

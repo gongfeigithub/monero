@@ -187,6 +187,10 @@ namespace cryptonote
   , "Run a program for each new block, '%s' will be replaced by the block hash"
   , ""
   };
+  static const command_line::arg_descriptor<bool> arg_service_node  = {
+    "service-node"
+  , "Run as a service node"
+  };
   static const command_line::arg_descriptor<bool> arg_prune_blockchain  = {
     "prune-blockchain"
   , "Prune blockchain"
@@ -211,11 +215,6 @@ namespace cryptonote
     "automatically increase the number of confirmations required before a payment "
     "is acted upon."
   , ""
-  };
-
-  static const command_line::arg_descriptor<bool> arg_service_node  = {
-    "service-node"
-  , "Run as a service node"
   };
 
   //-----------------------------------------------------------------------------------------------
@@ -333,10 +332,10 @@ namespace cryptonote
     command_line::add_arg(desc, arg_max_txpool_weight);
     command_line::add_arg(desc, arg_pad_transactions);
     command_line::add_arg(desc, arg_block_notify);
+    command_line::add_arg(desc, arg_service_node);
     command_line::add_arg(desc, arg_prune_blockchain);
     command_line::add_arg(desc, arg_reorg_notify);
     command_line::add_arg(desc, arg_block_rate_notify);
-    command_line::add_arg(desc, arg_service_node);
 
     miner::init_options(desc);
     BlockchainDB::init_options(desc);
@@ -476,7 +475,6 @@ namespace cryptonote
       r = init_service_node_key();
       CHECK_AND_ASSERT_MES(r, false, "Failed to create or load service node key");
 	  m_service_node_list.set_my_service_node_keys(&m_service_node_pubkey);
-
     }
     boost::filesystem::path folder(m_config_folder);
     if (m_nettype == FAKECHAIN)
@@ -654,10 +652,12 @@ namespace cryptonote
       0
     };
     const difficulty_type fixed_difficulty = command_line::get_arg(vm, arg_fixed_difficulty);
-	
+    r = m_blockchain_storage.init(db.release(), m_nettype, m_offline, regtest ? &regtest_test_options : test_options, fixed_difficulty, get_checkpoints);
+    CHECK_AND_ASSERT_MES(r, false, "Failed to initialize blockchain storage");
+
 	BlockchainDB *initialized_db = db.release();
 	m_service_node_list.set_db_pointer(initialized_db);
-  m_service_node_list.register_hooks(m_quorum_cop);
+    m_service_node_list.register_hooks(m_quorum_cop);
 
 
 	r = m_blockchain_storage.init(initialized_db, m_nettype, m_offline, test_options);
@@ -830,7 +830,7 @@ namespace cryptonote
     bad_semantics_txes_lock.unlock();
 
     uint8_t version = m_blockchain_storage.get_current_hard_fork_version();
-    unsigned int max_tx_version = (version == 1) ? 1 : (version < 5)
+    unsigned int max_tx_version = (version == 1) ? 1 : (version < SERVICE_NODE_VERSION)
       ? transaction::version_2
       : transaction::version_3_per_output_unlock_times;
     if (tx.version == 0 || tx.version > max_tx_version)
@@ -2104,16 +2104,6 @@ namespace cryptonote
     return si.available;
   }
   //-----------------------------------------------------------------------------------------------
-  uint32_t core::get_blockchain_pruning_seed() const
-  {
-    return get_blockchain_storage().get_blockchain_pruning_seed();
-  }
-  //-----------------------------------------------------------------------------------------------
-  bool core::prune_blockchain(uint32_t pruning_seed)
-  {
-    return get_blockchain_storage().prune_blockchain(pruning_seed);
-  }
-  
   const std::shared_ptr<const service_nodes::quorum_state> core::get_quorum_state(uint64_t height) const
   {
 	  return m_service_node_list.get_quorum_state(height);
@@ -2195,17 +2185,14 @@ bool core::get_service_node_keys(crypto::public_key &pub_key, crypto::secret_key
 	return m_service_node;
 }
   //-----------------------------------------------------------------------------------------------
-  bool core::cmd_prepare_registration(const boost::program_options::variables_map& vm, const std::vector<std::string>& args)
+  uint32_t core::get_blockchain_pruning_seed() const
   {
-    bool r = handle_command_line(vm);
-    CHECK_AND_ASSERT_MES(r, false, "Unable to parse command line arguments");
-    r = init_service_node_key();
-    CHECK_AND_ASSERT_MES(r, false, "Failed to create or load service node key");
-    std::string registration;
-    r = service_nodes::make_registration_cmd(get_nettype(), args, m_service_node_pubkey, m_service_node_key, registration, true /*make_friendly*/);
-    CHECK_AND_ASSERT_MES(r, "", tr("Failed to make registration command"));
-    std::cout << registration << std::endl;
-    return true;
+    return get_blockchain_storage().get_blockchain_pruning_seed();
+  }
+  //-----------------------------------------------------------------------------------------------
+  bool core::prune_blockchain(uint32_t pruning_seed)
+  {
+    return get_blockchain_storage().prune_blockchain(pruning_seed);
   }
   //-----------------------------------------------------------------------------------------------
   std::time_t core::get_start_time() const

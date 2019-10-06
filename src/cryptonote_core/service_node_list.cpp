@@ -1,5 +1,4 @@
 // Copyright (c)      2018, The Loki Project
-// Copyright (c)      2018, Project Mendark
 //
 // All rights reserved.
 //
@@ -89,7 +88,7 @@ namespace service_nodes
 	void service_node_list::init()
 	{
 		std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
-		if (m_blockchain.get_current_hard_fork_version() < 5)
+		if (m_blockchain.get_current_hard_fork_version() < SERVICE_NODE_VERSION)
 		{
 			clear(true);
 			return;
@@ -599,7 +598,7 @@ namespace service_nodes
 
 		const auto hf_version = m_blockchain.get_hard_fork_version(block_height);
 
-		if (hf_version >= 5) {
+		if (hf_version >= SERVICE_NODE_VERSION) {
 			info.version = service_node_info::version_1_swarms;
 			info.swarm_id = QUEUE_SWARM_ID; /// new nodes go into a "queue swarm"
 		}
@@ -636,7 +635,7 @@ namespace service_nodes
 		if (iter != m_service_nodes_infos.end())
 		{
 			int hard_fork_version = m_blockchain.get_hard_fork_version(block_height);
-			if (hard_fork_version >= 5)
+			if (hard_fork_version >= SERVICE_NODE_VERSION)
 			{
 				service_node_info const &old_info = iter->second;
 				uint64_t expiry_height = old_info.registration_height + get_staking_requirement_lock_blocks(m_blockchain.nettype());
@@ -778,7 +777,7 @@ namespace service_nodes
 		uint64_t block_height = cryptonote::get_block_height(block);
 		int hard_fork_version = m_blockchain.get_hard_fork_version(block_height);
 
-		if (hard_fork_version < 5)
+		if (hard_fork_version < SERVICE_NODE_VERSION)
 			return;
 
 		assert(m_height == block_height);
@@ -896,13 +895,13 @@ namespace service_nodes
 		int hard_fork_version = m_blockchain.get_hard_fork_version(block_height);
 
 		uint64_t lock_blocks = get_staking_requirement_lock_blocks(m_blockchain.nettype());
-		if (hard_fork_version >= 5)
+		if (hard_fork_version >= SERVICE_NODE_VERSION)
 			lock_blocks += STAKING_REQUIREMENT_LOCK_BLOCKS_EXCESS;
 
 		if (block_height < lock_blocks)
 			return expired_nodes;
 
-		if (hard_fork_version >= 5)
+		if (hard_fork_version >= SERVICE_NODE_VERSION)
 		{
 			for (auto &it : m_service_nodes_infos)
 			{
@@ -1002,7 +1001,7 @@ namespace service_nodes
 	bool service_node_list::validate_miner_tx(const crypto::hash& prev_id, const cryptonote::transaction& miner_tx, uint64_t height, int hard_fork_version, cryptonote::block_reward_parts const &reward_parts) const
 	{
 		std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
-		if (hard_fork_version < HF_VERSION_POS) //TODO Mendark
+		if (hard_fork_version < SERVICE_NODE_VERSION)
 			return true;
 
 		// NOTE(mendark): Service node reward distribution is calculated from the
@@ -1344,8 +1343,13 @@ namespace service_nodes
 		m_height = hardfork_5_from_height;
 	}
 
-	bool convert_registration_args(cryptonote::network_type nettype, std::vector<std::string> args, std::vector<cryptonote::account_public_address>& addresses, std::vector<uint64_t>& portions, uint64_t& portions_for_operator, bool& autostake)
-	{
+  bool convert_registration_args(cryptonote::network_type nettype,
+                                 std::vector<std::string> args,
+                                 std::vector<cryptonote::account_public_address>& addresses,
+                                 std::vector<uint64_t>& portions,
+                                 uint64_t& portions_for_operator,
+                                 bool& autostake,
+                                 boost::optional<std::string&> err_msg)	{
 		autostake = false;
 		if (!args.empty() && args[0] == "auto")
 		{
@@ -1358,10 +1362,12 @@ namespace service_nodes
 			MERROR(tr("Usage: [auto] <operator cut> <address> <fraction> [<address> <fraction> [...]]]"));
 			return false;
 		}
-		if ((args.size() - 1) / 2 > MAX_NUMBER_OF_CONTRIBUTORS)
+		if ((args.size()-1)/ 2 > MAX_NUMBER_OF_CONTRIBUTORS)
 		{
-			MERROR(tr("Exceeds the maximum number of contributors, which is ") << MAX_NUMBER_OF_CONTRIBUTORS);
-			return false;
+		std::string msg = tr("Exceeds the maximum number of contributors, which is ") + std::to_string(MAX_NUMBER_OF_CONTRIBUTORS);
+		if (err_msg) *err_msg = msg;
+		MERROR(tr("Exceeds the maximum number of contributors, which is ") << MAX_NUMBER_OF_CONTRIBUTORS);
+		return false;
 		}
 		addresses.clear();
 		portions.clear();
@@ -1385,19 +1391,25 @@ namespace service_nodes
 			cryptonote::address_parse_info info;
 			if (!cryptonote::get_account_address_from_str(info, nettype, args[i]))
 			{
-				MERROR(tr("failed to parse address"));
+				std::string msg = tr("failed to parse address: ") + args[i];
+				if (err_msg) *err_msg = msg;
+				MERROR(msg);
 				return false;
 			}
 
 			if (info.has_payment_id)
 			{
-				MERROR(tr("can't use a payment id for staking tx"));
+				std::string msg = tr("can't use a payment id for staking tx");
+				if (err_msg) *err_msg = msg;
+				MERROR(msg);
 				return false;
 			}
 
 			if (info.is_subaddress)
 			{
-				MERROR(tr("can't use a subaddress for staking tx"));
+				std::string msg = tr("can't use a subaddress for staking tx");
+				if (err_msg) *err_msg = msg;
+				MERROR(msg);
 				return false;
 			}
 
@@ -1409,6 +1421,7 @@ namespace service_nodes
 				uint64_t min_portions = std::min(portions_left, MIN_PORTIONS);
 				if (num_portions < min_portions || num_portions > portions_left)
 				{
+					if (err_msg) *err_msg = "invalid amount for contributor " + args[i];
 					MERROR(tr("Invalid portion amount: ") << args[i + 1] << tr(". ") << tr("The contributors must each have at least 25%, except for the last contributor which may have the remaining amount"));
 					return false;
 				}
@@ -1417,6 +1430,7 @@ namespace service_nodes
 			}
 			catch (const std::exception &e)
 			{
+				if (err_msg) *err_msg = "invalid amount for contributor " + args[i];
 				MERROR(tr("Invalid portion amount: ") << args[i + 1] << tr(". ") << tr("The contributors must each have at least 25%, except for the last contributor which may have the remaining amount"));
 				return false;
 			}
@@ -1425,14 +1439,14 @@ namespace service_nodes
 	}
 
 	bool make_registration_cmd(cryptonote::network_type nettype, const std::vector<std::string> args, const crypto::public_key& service_node_pubkey,
-		const crypto::secret_key service_node_key, std::string &cmd, bool make_friendly)
+                             const crypto::secret_key service_node_key, std::string &cmd, bool make_friendly, boost::optional<std::string&> err_msg)
 	{
 
 		std::vector<cryptonote::account_public_address> addresses;
 		std::vector<uint64_t> portions;
 		uint64_t operator_portions;
 		bool autostake;
-		if (!convert_registration_args(nettype, args, addresses, portions, operator_portions, autostake))
+    	if (!convert_registration_args(nettype, args, addresses, portions, operator_portions, autostake, err_msg))
 		{
 			MERROR(tr("Could not convert registration args"));
 			return false;

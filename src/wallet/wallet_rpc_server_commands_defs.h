@@ -1134,10 +1134,17 @@ namespace wallet_rpc
   {
     struct request_t
     {
+<<<<<<< HEAD
+		bool hard;
+      BEGIN_KV_SERIALIZE_MAP()
+		  KV_SERIALIZE_OPT(hard, false);
+
+=======
       bool hard;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE_OPT(hard, false);
+>>>>>>> origin/master
       END_KV_SERIALIZE_MAP()
     };
     typedef epee::misc_utils::struct_init<request_t> request;

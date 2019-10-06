@@ -7,8 +7,12 @@
 */
 
 // Copyright (c) 2014-2018, The Monero Project
+<<<<<<< HEAD
+//
+=======
 // Copyright (c) 2018, The BitDark Project
 // 
+>>>>>>> origin/master
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -159,15 +163,17 @@ public:
   bool relay_tx(const std::string &txid);
 
   bool sync_info();
-  bool get_service_node_registration_cmd(const std::vector<std::string> &args);
+<<<<<<< HEAD
   bool print_sn_key();
   bool print_sn_status();
   bool print_sr(uint64_t height);
-  bool prepare_registration();
+  bool prepare_sn();
 
   bool print_sn(const std::vector<std::string> &args);
 
 
+
+=======
 
   bool pop_blocks(uint64_t num_blocks);
 
@@ -176,8 +182,7 @@ public:
   bool check_blockchain_pruning();
 
   bool print_net_stats();
-
-  bool get_service_node_registration_cmd(const std::vector<std::string> &args);
+>>>>>>> origin/master
 };
 
 } // namespace daemonize

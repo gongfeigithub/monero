@@ -41,11 +41,11 @@
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
 #include "ringct/rctSigs.h"
+#include "cryptonote_basic/verification_context.h"
+#include "cryptonote_core/service_node_deregister.h"
 #include "serialization/binary_utils.h"
 #include "cryptonote_core/cryptonote_tx_utils.h"
 #include "miner.h"
-#include "cryptonote_basic/verification_context.h"
-#include "cryptonote_core/service_node_deregister.h"
 
 using namespace epee;
 
@@ -1148,11 +1148,6 @@ void add_tx_secret_key_to_tx_extra(std::vector<uint8_t>& tx_extra, const crypto:
 	  if (vvc.m_not_enough_votes)                  bufPtr += snprintf(bufPtr, bufEnd - bufPtr, "Not enough votes, ");
 
 	  return buf;
-  }
-  //---------------------------------------------------------------
-  void get_blob_hash(const epee::span<const char>& blob, crypto::hash& res)
-  {
-    cn_fast_hash(blob.data(), blob.size(), res);
   }
   //---------------------------------------------------------------
   void get_blob_hash(const blobdata& blob, crypto::hash& res)

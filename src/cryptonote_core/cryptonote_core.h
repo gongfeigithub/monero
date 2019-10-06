@@ -849,15 +849,7 @@ namespace cryptonote
      * @return Whether the vote was added to the partial deregister pool
      */
     bool add_deregister_vote(const mendark::service_node_deregister::vote& vote, vote_verification_context &vvc);
-    /**
-     * @brief Prepare a registration tx using the service node keys for this
-     * daemon. This function is intended to be called without being core
-     * initialized with core::init; for use when generating txs from the shell
-     *
-     * @param vm The command line variable map.
-     * @return whether or not the command was able to prepare the registration.
-     */
-    bool cmd_prepare_registration(const boost::program_options::variables_map& vm, const std::vector<std::string>& args);
+
     /**
     * @brief Return the account associated to this service node.
     * @param pub_key The public key for the service node, unmodified if not a service node
@@ -865,6 +857,21 @@ namespace cryptonote
     * @return True if we are a service node
     */
 	bool get_service_node_keys(crypto::public_key &pub_key, crypto::secret_key &sec_key) const;
+
+   /**
+    * @brief attempts to submit an uptime proof to the network, if this is running in service node mode
+    *
+    * @return true
+    */
+   bool submit_uptime_proof();
+   /**
+   * @brief Try find the uptime proof from the service node.
+   *
+   * @param key The public key of the service node
+   *
+   * @return 0 if no uptime proof found, otherwise the timestamp it last received in epoch time
+   */
+   uint64_t get_uptime_proof(const crypto::public_key &key) const;
 
      /**
       * @brief get the blockchain pruning seed
@@ -895,22 +902,6 @@ namespace cryptonote
       * @return true on success, false otherwise
       */
      bool check_blockchain_pruning();
-     
-    /**
-    * @brief attempts to submit an uptime proof to the network, if this is running in service node mode
-    *
-    * @return true
-    */
-     bool submit_uptime_proof();
-
-   /**
-   * @brief Try find the uptime proof from the service node.
-   *
-   * @param key The public key of the service node
-   *
-   * @return 0 if no uptime proof found, otherwise the timestamp it last received in epoch time
-   */
-     uint64_t get_uptime_proof(const crypto::public_key &key) const;
 
    private:
 

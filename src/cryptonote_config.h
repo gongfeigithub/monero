@@ -43,7 +43,7 @@
 #define CRYPTONOTE_MAX_TX_PER_BLOCK                     0x10000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER          0
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            10
-#define CURRENT_TRANSACTION_VERSION                     2 
+#define CURRENT_TRANSACTION_VERSION                     3 
 #define CURRENT_BLOCK_MAJOR_VERSION                     1
 #define CURRENT_BLOCK_MINOR_VERSION                     0
 #define BLOCK_MAJOR_VERSION_1                           1
@@ -187,7 +187,10 @@ static_assert(STAKING_PORTIONS % 3 == 0, "Use a multiple of three, so that it di
 #define HF_VERSION_PADDED_BULLETS               6
 #define HF_VERSION_SMALLER_BP                   8 //TODO v8?
 #define HF_VERSION_LONG_TERM_BLOCK_WEIGHT       8 //TODO v8?
-#define HF_VERSION_POS                          8 //TODO v8?
+
+//Service nodes
+
+#define SERVICE_NODE_VERSION                    8
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 

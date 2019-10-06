@@ -49,6 +49,7 @@
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
 #include "misc_language.h"
+#include "tx_extra.h"
 #include "ringct/rctTypes.h"
 #include "device/device.hpp"
 
@@ -205,18 +206,9 @@ namespace cryptonote
     END_SERIALIZE()
 
   public:
-    transaction_prefix(){ set_null(); }
-    void set_null()
-    {
-      version = 1;
-      unlock_time = 0;
-      vin.clear();
-      vout.clear();
-      extra.clear();
-    }
-    
-    bool is_deregister_tx() const { return (version >= version_3_per_output_unlock_times) && is_deregister; }
-    
+    transaction_prefix(){}
+	bool is_deregister_tx() const { return (version >= version_3_per_output_unlock_times) && is_deregister; }
+
     uint64_t get_unlock_time(size_t out_index) const
    {
      if (version >= version_3_per_output_unlock_times)
@@ -388,8 +380,6 @@ namespace cryptonote
   inline
   void transaction::set_null()
   {
-    transaction_prefix::set_null();
-    version = 1;
     unlock_time = 0;
     output_unlock_times.clear();
     is_deregister = false;
@@ -397,9 +387,6 @@ namespace cryptonote
     vout.clear();
     extra.clear();
     signatures.clear();
-	rct_signatures = {};
-    rct_signatures.type = rct::RCTTypeNull;
-    set_hash_valid(false);
     set_blob_size_valid(false);
     pruned = false;
     unprunable_size = 0;

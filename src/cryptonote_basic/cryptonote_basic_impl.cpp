@@ -47,6 +47,8 @@ using namespace epee;
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "cn"
 
+double mendark_exp2(double);
+
 namespace cryptonote {
 
   struct integrated_address {

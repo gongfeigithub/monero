@@ -28,8 +28,8 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef MENDARK_H
-#define MENDARK_H
+#ifndef BITDARK_H
+#define BITDARK_H
 
 #include <string>
 
@@ -40,4 +40,4 @@ namespace mendark
 	std::string hex64_to_base32z(std::string const& src);
 }; // namespace mendark
 
-#endif // MENDARK_H
+#endif // BITDARK_H

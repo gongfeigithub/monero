@@ -874,6 +874,12 @@ bool construct_tx_to_key(const std::vector<test_event_entry>& events, cryptonote
 {
   vector<tx_source_entry> sources;
   vector<tx_destination_entry> destinations;
+<<<<<<< HEAD
+  fill_tx_sources_and_destinations(events, blk_head, from, to, amount, fee, nmix, sources, destinations);
+  tx_destination_entry change_addr{ amount, from.get_keys().m_account_address, false /* is subaddr */ };
+
+  return construct_tx(from.get_keys(), sources, destinations, change_addr, std::vector<uint8_t>(), tx, 0);
+=======
   fill_tx_sources_and_destinations(events, blk_head, from, get_address(to), amount, fee, nmix, sources, destinations);
 
   return construct_tx_rct(from.get_keys(), sources, destinations, from.get_keys().m_account_address, std::vector<uint8_t>(), tx, 0, rct, range_proof_type, bp_version);
@@ -925,6 +931,7 @@ bool construct_tx_rct(const cryptonote::account_keys& sender_account_keys, std::
   std::vector<tx_destination_entry> destinations_copy = destinations;
   rct::RCTConfig rct_config = {range_proof_type, bp_version};
   return construct_tx_and_get_tx_key(sender_account_keys, subaddresses, sources, destinations_copy, change_addr, extra, tx, unlock_time, tx_key, additional_tx_keys, rct, rct_config, nullptr);
+>>>>>>> origin/master
 }
 
 transaction construct_tx_with_fee(std::vector<test_event_entry>& events, const block& blk_head,
