@@ -1,10 +1,6 @@
 // Copyright (c) 2014-2018, The Monero Project
-<<<<<<< HEAD
-//
-=======
 // Copyright (c) 2018, The BitDark Project
 // 
->>>>>>> origin/master
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -56,14 +52,9 @@
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "wallet.simplewallet"
-<<<<<<< HEAD
-// Hardcode Monero's donation address (see #1447)
-constexpr const char MONERO_DONATION_ADDR[] = "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A";
-=======
 // Hardcode BitDark's donation address (see #1447)
 constexpr const char MONERO_DONATION_ADDR[] = "bxdaNPkW77u6KYJuYNDSJpfocTXjVpZ7mMAsoNELySdnbAr8U6aMvnULosC456Kk7NRCAS2Xe7o14NF7bbPKyVta39KPYFia3";
 
->>>>>>> origin/master
 /*!
  * \namespace cryptonote
  * \brief Holds cryptonote related classes and helpers.
@@ -94,11 +85,7 @@ namespace cryptonote
     std::string get_command_usage(const std::vector<std::string> &args);
   private:
 
-<<<<<<< HEAD
-	  enum ResetType { ResetNone, ResetSoft, ResetHard };
-=======
     enum ResetType { ResetNone, ResetSoft, ResetHard, ResetSoftKeepKI };
->>>>>>> origin/master
 
     bool handle_command_line(const boost::program_options::variables_map& vm);
 
@@ -156,13 +143,8 @@ namespace cryptonote
     bool set_subaddress_lookahead(const std::vector<std::string> &args = std::vector<std::string>());
     bool set_segregation_height(const std::vector<std::string> &args = std::vector<std::string>());
     bool set_ignore_fractional_outputs(const std::vector<std::string> &args = std::vector<std::string>());
-<<<<<<< HEAD
-	bool set_fork_on_autostake(const std::vector<std::string> &args = std::vector<std::string>());
-
-=======
     bool set_track_uses(const std::vector<std::string> &args = std::vector<std::string>());
     bool set_device_name(const std::vector<std::string> &args = std::vector<std::string>());
->>>>>>> origin/master
     bool help(const std::vector<std::string> &args = std::vector<std::string>());
     bool start_mining(const std::vector<std::string> &args);
     bool stop_mining(const std::vector<std::string> &args);
@@ -215,11 +197,7 @@ namespace cryptonote
     bool export_transfers(const std::vector<std::string> &args);
     bool unspent_outputs(const std::vector<std::string> &args);
     bool rescan_blockchain(const std::vector<std::string> &args);
-<<<<<<< HEAD
-    bool refresh_main(uint64_t start_height, enum ResetType reset, bool is_init = false);
-=======
     bool refresh_main(uint64_t start_height, ResetType reset, bool is_init = false);
->>>>>>> origin/master
     bool set_tx_note(const std::vector<std::string> &args);
     bool get_tx_note(const std::vector<std::string> &args);
     bool set_description(const std::vector<std::string> &args);

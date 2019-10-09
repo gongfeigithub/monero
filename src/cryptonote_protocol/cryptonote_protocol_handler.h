@@ -3,12 +3,8 @@
 /// @brief This is the original cryptonote protocol network-events handler, modified by us
 
 // Copyright (c) 2014-2018, The Monero Project
-<<<<<<< HEAD
-//
-=======
 // Copyright (c) 2018, The BitDark Project
 // 
->>>>>>> origin/master
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are

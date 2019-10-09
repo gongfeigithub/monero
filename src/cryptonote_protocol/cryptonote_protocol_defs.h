@@ -1,10 +1,6 @@
 // Copyright (c) 2014-2018, The Monero Project
-<<<<<<< HEAD
-//
-=======
 // Copyright (c) 2018, The BitDark Project
 // 
->>>>>>> origin/master
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -281,12 +277,8 @@ namespace cryptonote
         KV_SERIALIZE(current_blockchain_height)
       END_KV_SERIALIZE_MAP()
     };
-<<<<<<< HEAD
-  };
-=======
     typedef epee::misc_utils::struct_init<request_t> request;
   };  
->>>>>>> origin/master
 
   /************************************************************************/
   /*                                                                      */
@@ -307,53 +299,7 @@ namespace cryptonote
         KV_SERIALIZE_CONTAINER_POD_AS_BLOB(missing_tx_indices)
       END_KV_SERIALIZE_MAP()
     };
-<<<<<<< HEAD
-  };
-  /************************************************************************/
-   /*                                                                      */
-   /************************************************************************/
-   struct NOTIFY_NEW_DEREGISTER_VOTE
-   {
-     const static int ID = BC_COMMANDS_POOL_BASE + 10;
-
-     struct request
-     {
-       std::vector<mendark::service_node_deregister::vote> votes;
-       BEGIN_KV_SERIALIZE_MAP()
-         KV_SERIALIZE_CONTAINER_POD_AS_BLOB(votes)
-       END_KV_SERIALIZE_MAP()
-     };
-   };
-   /************************************************************************/
-  /*                                                                      */
-  /************************************************************************/
-  struct NOTIFY_UPTIME_PROOF
-  {
-    const static int ID = BC_COMMANDS_POOL_BASE + 11;
-
-    struct request
-    {
-		uint16_t snode_version_major;
-		uint16_t snode_version_minor;
-		uint16_t snode_version_patch;
-
-      uint64_t timestamp;
-      crypto::public_key pubkey;
-      crypto::signature sig;
-
-      BEGIN_KV_SERIALIZE_MAP()
-		  KV_SERIALIZE(snode_version_major)
-		  KV_SERIALIZE(snode_version_minor)
-		  KV_SERIALIZE(snode_version_patch)
-        KV_SERIALIZE(timestamp)
-        KV_SERIALIZE_VAL_POD_AS_BLOB(pubkey)
-        KV_SERIALIZE_VAL_POD_AS_BLOB(sig)
-      END_KV_SERIALIZE_MAP()
-    };
-  };
-=======
     typedef epee::misc_utils::struct_init<request_t> request;
   }; 
     
->>>>>>> origin/master
 }

@@ -60,8 +60,6 @@ using namespace epee;
 #define MAX_RESTRICTED_FAKE_OUTS_COUNT 40
 #define MAX_RESTRICTED_GLOBAL_FAKE_OUTS_COUNT 5000
 
-<<<<<<< HEAD
-=======
 #define OUTPUT_HISTOGRAM_RECENT_CUTOFF_RESTRICTION (3 * 86400) // 3 days max, the wallet requests 1.8 days
 
 namespace
@@ -79,7 +77,6 @@ namespace
   }
 }
 
->>>>>>> origin/master
 namespace cryptonote
 {
 
@@ -201,15 +198,6 @@ namespace cryptonote
     res.target = m_core.get_blockchain_storage().get_difficulty_target();
     res.tx_count = m_core.get_blockchain_storage().get_total_transactions() - res.height; //without coinbase
     res.tx_pool_size = m_core.get_pool_transactions_count();
-<<<<<<< HEAD
-    res.alt_blocks_count = m_core.get_blockchain_storage().get_alternative_blocks_count();
-    uint64_t total_conn = m_p2p.get_connections_count();
-    res.outgoing_connections_count = m_p2p.get_outgoing_connections_count();
-    res.incoming_connections_count = total_conn - res.outgoing_connections_count;
-    res.rpc_connections_count = get_connections_count();
-    res.white_peerlist_size = m_p2p.get_peerlist_manager().get_white_peers_count();
-    res.grey_peerlist_size = m_p2p.get_peerlist_manager().get_gray_peers_count();
-=======
     res.alt_blocks_count = restricted ? 0 : m_core.get_blockchain_storage().get_alternative_blocks_count();
     uint64_t total_conn = restricted ? 0 : m_p2p.get_public_connections_count();
     res.outgoing_connections_count = restricted ? 0 : m_p2p.get_public_outgoing_connections_count();
@@ -217,17 +205,12 @@ namespace cryptonote
     res.rpc_connections_count = restricted ? 0 : get_connections_count();
     res.white_peerlist_size = restricted ? 0 : m_p2p.get_public_white_peers_count();
     res.grey_peerlist_size = restricted ? 0 : m_p2p.get_public_gray_peers_count();
->>>>>>> origin/master
 
     cryptonote::network_type net_type = nettype();
     res.mainnet = net_type == MAINNET;
     res.testnet = net_type == TESTNET;
     res.stagenet = net_type == STAGENET;
     res.nettype = net_type == MAINNET ? "mainnet" : net_type == TESTNET ? "testnet" : net_type == STAGENET ? "stagenet" : "fakechain";
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
     res.cumulative_difficulty = m_core.get_blockchain_storage().get_db().get_block_cumulative_difficulty(res.height - 1);
     res.block_size_limit = res.block_weight_limit = m_core.get_blockchain_storage().get_current_cumulative_block_weight_limit();
     res.block_size_median = res.block_weight_median = m_core.get_blockchain_storage().get_current_cumulative_block_weight_median();
@@ -422,83 +405,7 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
-  bool core_rpc_server::on_get_random_outs(const COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::request& req, COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::response& res)
-  {
-	  PERF_TIMER(on_get_random_outs);
-	  bool r;
-	  if (use_bootstrap_daemon_if_necessary<COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS>(invoke_http_mode::BIN, "/getrandom_outs.bin", req, res, r))
-		  return r;
-
-	  res.status = "Failed";
-
-	  if (m_restricted)
-	  {
-		  if (req.amounts.size() > 100 || req.outs_count > MAX_RESTRICTED_FAKE_OUTS_COUNT)
-		  {
-			  res.status = "Too many outs requested";
-			  return true;
-		  }
-	  }
-
-	  if (!m_core.get_random_outs_for_amounts(req, res))
-	  {
-		  return true;
-	  }
-
-	  res.status = CORE_RPC_STATUS_OK;
-	  std::stringstream ss;
-	  typedef COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::outs_for_amount outs_for_amount;
-	  typedef COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::out_entry out_entry;
-	  std::for_each(res.outs.begin(), res.outs.end(), [&](outs_for_amount& ofa)
-	  {
-		  ss << "[" << ofa.amount << "]:";
-		  CHECK_AND_ASSERT_MES(ofa.outs.size(), ; , "internal error: ofa.outs.size() is empty for amount " << ofa.amount);
-		  std::for_each(ofa.outs.begin(), ofa.outs.end(), [&](out_entry& oe)
-		  {
-			  ss << oe.global_amount_index << " ";
-		  });
-		  ss << ENDL;
-	  });
-	  std::string s = ss.str();
-	  LOG_PRINT_L2("COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS: " << ENDL << s);
-	  res.status = CORE_RPC_STATUS_OK;
-	  return true;
-  }
-  //------------------------------------------------------------------------------------------------------------------------------
-  bool core_rpc_server::on_get_random_rct_outs(const COMMAND_RPC_GET_RANDOM_RCT_OUTPUTS::request& req, COMMAND_RPC_GET_RANDOM_RCT_OUTPUTS::response& res)
-  {
-	  PERF_TIMER(on_get_random_rct_outs);
-	  bool r;
-	  if (use_bootstrap_daemon_if_necessary<COMMAND_RPC_GET_RANDOM_RCT_OUTPUTS>(invoke_http_mode::BIN, "/getrandom_rctouts.bin", req, res, r))
-		  return r;
-
-	  res.status = "Failed";
-	  if (!m_core.get_random_rct_outs(req, res))
-	  {
-		  return true;
-	  }
-
-	  res.status = CORE_RPC_STATUS_OK;
-	  std::stringstream ss;
-	  typedef COMMAND_RPC_GET_RANDOM_RCT_OUTPUTS::out_entry out_entry;
-	  CHECK_AND_ASSERT_MES(res.outs.size(), true, "internal error: res.outs.size() is empty");
-	  std::for_each(res.outs.begin(), res.outs.end(), [&](out_entry& oe)
-	  {
-		  ss << oe.global_amount_index << " ";
-	  });
-	  ss << ENDL;
-	  std::string s = ss.str();
-	  LOG_PRINT_L2("COMMAND_RPC_GET_RANDOM_RCT_OUTPUTS: " << ENDL << s);
-	  res.status = CORE_RPC_STATUS_OK;
-	  return true;
-  }
-  //------------------------------------------------------------------------------------------------------------------------------
-  //------------------------------------------------------------------------------------------------------------------------------
-  bool core_rpc_server::on_get_outs_bin(const COMMAND_RPC_GET_OUTPUTS_BIN::request& req, COMMAND_RPC_GET_OUTPUTS_BIN::response& res)
-=======
   bool core_rpc_server::on_get_outs_bin(const COMMAND_RPC_GET_OUTPUTS_BIN::request& req, COMMAND_RPC_GET_OUTPUTS_BIN::response& res, const connection_context *ctx)
->>>>>>> origin/master
   {
     PERF_TIMER(on_get_outs_bin);
     bool r;
@@ -912,30 +819,6 @@ namespace cryptonote
     tx_verification_context tvc = AUTO_VAL_INIT(tvc);
     if(!m_core.handle_incoming_tx(tx_blob, tvc, false, false, req.do_not_relay) || tvc.m_verifivation_failed)
     {
-<<<<<<< HEAD
-    
-
-      const vote_verification_context &vvc = tvc.m_vote_ctx;
-	  res.status = "Failed";
-	  res.reason = print_tx_verification_context(tvc);
-	  res.reason += print_vote_verification_context(vvc);
-
-	  res.low_mixin = tvc.m_low_mixin;
-	  res.double_spend = tvc.m_double_spend;
-	  res.invalid_input = tvc.m_invalid_input;
-	  res.invalid_output = tvc.m_invalid_output;
-	  res.too_big = tvc.m_too_big;
-	  res.overspend = tvc.m_overspend;
-	  res.fee_too_low = tvc.m_fee_too_low;
-	  res.not_rct = tvc.m_not_rct;
-	  res.invalid_block_height = vvc.m_invalid_block_height;
-	  res.duplicate_voters = vvc.m_duplicate_voters;
-	  res.voters_quorum_index_out_of_bounds = vvc.m_voters_quorum_index_out_of_bounds;
-	  res.service_node_index_out_of_bounds = vvc.m_service_node_index_out_of_bounds;
-	  res.signature_not_valid = vvc.m_signature_not_valid;
-	  res.not_enough_votes = vvc.m_not_enough_votes;
-      const std::string punctuation = res.reason.empty() ? "" : ": ";
-=======
       res.status = "Failed";
       std::string reason = "";
       if ((res.low_mixin = tvc.m_low_mixin))
@@ -955,7 +838,6 @@ namespace cryptonote
       if ((res.not_rct = tvc.m_not_rct))
         add_reason(reason, "tx is not ringct");
       const std::string punctuation = reason.empty() ? "" : ": ";
->>>>>>> origin/master
       if (tvc.m_verifivation_failed)
       {
         LOG_PRINT_L0("[on_send_raw_tx]: tx verification failed" << punctuation << reason);
@@ -1067,10 +949,6 @@ namespace cryptonote
     if ( lMiner.is_mining() ) {
       res.speed = lMiner.get_speed();
       res.threads_count = lMiner.get_threads_count();
-<<<<<<< HEAD
-      const account_public_address& lMiningAdr = lMiner.get_mining_address();
-      res.address = get_account_address_as_str(nettype(), false, lMiningAdr);
-=======
       res.block_reward = lMiner.get_block_reward();
     }
     const account_public_address& lMiningAdr = lMiner.get_mining_address();
@@ -1091,7 +969,6 @@ namespace cryptonote
       res.bg_min_idle_seconds = lMiner.get_min_idle_seconds();
       res.bg_ignore_battery = lMiner.get_ignore_battery();
       res.bg_target = lMiner.get_mining_target();
->>>>>>> origin/master
     }
 
     res.status = CORE_RPC_STATUS_OK;
@@ -1872,15 +1749,6 @@ namespace cryptonote
     res.target = m_core.get_blockchain_storage().get_current_hard_fork_version() < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
     res.tx_count = m_core.get_blockchain_storage().get_total_transactions() - res.height; //without coinbase
     res.tx_pool_size = m_core.get_pool_transactions_count();
-<<<<<<< HEAD
-    res.alt_blocks_count = m_core.get_blockchain_storage().get_alternative_blocks_count();
-    uint64_t total_conn = m_p2p.get_connections_count();
-    res.outgoing_connections_count = m_p2p.get_outgoing_connections_count();
-    res.incoming_connections_count = total_conn - res.outgoing_connections_count;
-    res.rpc_connections_count = get_connections_count();
-    res.white_peerlist_size = m_p2p.get_peerlist_manager().get_white_peers_count();
-    res.grey_peerlist_size = m_p2p.get_peerlist_manager().get_gray_peers_count();
-=======
     res.alt_blocks_count = restricted ? 0 : m_core.get_blockchain_storage().get_alternative_blocks_count();
     uint64_t total_conn = restricted ? 0 : m_p2p.get_public_connections_count();
     res.outgoing_connections_count = restricted ? 0 : m_p2p.get_public_outgoing_connections_count();
@@ -1888,7 +1756,6 @@ namespace cryptonote
     res.rpc_connections_count = restricted ? 0 : get_connections_count();
     res.white_peerlist_size = restricted ? 0 : m_p2p.get_public_white_peers_count();
     res.grey_peerlist_size = restricted ? 0 : m_p2p.get_public_gray_peers_count();
->>>>>>> origin/master
 
     cryptonote::network_type net_type = nettype();
     res.mainnet = net_type == MAINNET;
@@ -2335,61 +2202,6 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
-  bool core_rpc_server::on_get_quorum_state(const COMMAND_RPC_GET_QUORUM_STATE::request& req, COMMAND_RPC_GET_QUORUM_STATE::response& res, epee::json_rpc::error& error_resp)
-  {
-   PERF_TIMER(on_get_quorum_state);
-   bool r;
-
-   const auto quorum_state = m_core.get_quorum_state(req.height);
-   r = (quorum_state != nullptr);
-   if (r)
-   {
-     res.status = CORE_RPC_STATUS_OK;
-     res.quorum_nodes.reserve (quorum_state->quorum_nodes.size());
-     res.nodes_to_test.reserve(quorum_state->nodes_to_test.size());
-
-     for (const auto &key : quorum_state->quorum_nodes)
-       res.quorum_nodes.push_back(epee::string_tools::pod_to_hex(key));
-
-     for (const auto &key : quorum_state->nodes_to_test)
-       res.nodes_to_test.push_back(epee::string_tools::pod_to_hex(key));
-   }
-   else
-   {
-	   error_resp.code = CORE_RPC_ERROR_CODE_WRONG_PARAM;
-	   error_resp.message = "Block height: ";
-	   error_resp.message += std::to_string(req.height);
-	   error_resp.message += ", returned null hash or failed to derive quorum list";
-   }
-
-   return r;
- }
- //------------------------------------------------------------------------------------------------------------------------------
-  bool core_rpc_server::on_get_service_node_key(const COMMAND_RPC_GET_SERVICE_NODE_KEY::request& req, COMMAND_RPC_GET_SERVICE_NODE_KEY::response& res, epee::json_rpc::error &error_resp)
-  {
-	  PERF_TIMER(on_get_service_node_key);
-
-	  crypto::public_key pubkey;
-	  crypto::secret_key seckey;
-	  bool result = m_core.get_service_node_keys(pubkey, seckey);
-	  if (result)
-	  {
-		  res.service_node_pubkey = string_tools::pod_to_hex(pubkey);
-	  }
-	  else
-	  {
-		  error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
-		  error_resp.message = "Daemon queried is not a service node or did not launch with --service-node";
-		  return false;
-	  }
-
-	  res.status = CORE_RPC_STATUS_OK;
-	  return result;
-  }
-  //------------------------------------------------------------------------------------------------------------------------------
-  bool core_rpc_server::on_relay_tx(const COMMAND_RPC_RELAY_TX::request& req, COMMAND_RPC_RELAY_TX::response& res, epee::json_rpc::error& error_resp)
-=======
   bool core_rpc_server::on_pop_blocks(const COMMAND_RPC_POP_BLOCKS::request& req, COMMAND_RPC_POP_BLOCKS::response& res, const connection_context *ctx)
   {
     PERF_TIMER(on_pop_blocks);
@@ -2403,7 +2215,6 @@ namespace cryptonote
   }
   //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::on_relay_tx(const COMMAND_RPC_RELAY_TX::request& req, COMMAND_RPC_RELAY_TX::response& res, epee::json_rpc::error& error_resp, const connection_context *ctx)
->>>>>>> origin/master
   {
     PERF_TIMER(on_relay_tx);
 
